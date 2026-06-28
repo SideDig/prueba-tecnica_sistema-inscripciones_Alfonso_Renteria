@@ -6,13 +6,11 @@ Proyecto frontend en Angular para gestionar el registro y seguimiento de alumnos
 
 Para tener la aplicacion corriendo en local, asegurar de tener Node.js instalado, y ejecutar los siguientes comandos en la terminal:
 
----
-
+```bash
 cd sistema-inscripciones
 npm install
 ng serve - npm start
-
----
+```
 
 Abre el navegador en `http://localhost:4200`
 
