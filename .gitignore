@@ -1,0 +1,23 @@
+# Node & Angular (UI)
+**/node_modules/
+**/.angular/
+**/dist/
+.env
+
+# Python / Jupyter Notebook
+.ipynb_checkpoints/
+__pycache__/
+*.pyc
+
+# Archivos temporales del sistema
+Thumbs.db
+Desktop.ini
+
+# Configuraciones de editores e IDEs
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
