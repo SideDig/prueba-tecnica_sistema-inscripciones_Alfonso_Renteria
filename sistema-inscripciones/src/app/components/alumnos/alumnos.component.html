@@ -1,0 +1,177 @@
+<div class="alumnos-section">
+  
+  <!-- BARRA DE FILTROS -->
+  <div class="filters-bar">
+    <h3>Filtros</h3>
+    <div class="filters-inputs">
+      
+      <!-- Filtro Estatus -->
+      <div class="filter-group">
+        <label for="filterStatus">Estatus Actual</label>
+        <select id="filterStatus" [(ngModel)]="filterStatus" (change)="applyFilters()">
+          <option value="">Todos los estatus</option>
+          <option *ngFor="let status of statusOptions" [value]="status">
+            {{ formatStatus(status) | titlecase }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Filtro Programa -->
+      <div class="filter-group">
+        <label for="filterProgram">Programa academico</label>
+        <select id="filterProgram" [(ngModel)]="filterProgram" (change)="applyFilters()">
+          <option value="">Todos los programas</option>
+          <option *ngFor="let prog of programs" [value]="prog.id_programa">
+            {{ prog.nombre_programa }}
+          </option>
+        </select>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TABLA DE ALUMNOS -->
+  <div class="table-container">
+    <table class="students-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nombre</th>
+          <th>Empresa</th>
+          <th>Programa</th>
+          <th>Estatus</th>
+          <th>Fecha inscipcion</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let student of paginatedStudents">
+          <td><strong>{{ student.id_alumno }}</strong></td>
+          <td>{{ student.nombre }}</td>
+          <td>{{ student.nombre_empresa }}</td>
+          <td>{{ student.nombre_programa }}</td>
+          <td>
+            <span class="badge badge-{{ student.estatus }}">
+              {{ formatStatus(student.estatus) | titlecase }}
+            </span>
+          </td>
+          <td>{{ student.fecha_inscripcion }}</td>
+          <td class="action-buttons">
+            <button class="btn-action btn-status" (click)="openStatusModal(student)">
+              Cambiar estatus
+            </button>
+            <button class="btn-action btn-history" (click)="openHistoryModal(student)">
+              Ver historial
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="paginatedStudents.length === 0">
+          <td colspan="7" class="no-data">
+            No se encontraron alumnos que coincidan con los filtros seleccionados.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- PAGINADOR -->
+  <div class="pagination-bar" *ngIf="totalPages > 1">
+    <button class="btn-pag" [disabled]="currentPage === 1" (click)="prevPage()">
+      Anterior
+    </button>
+    <span class="pagination-info">
+      Página <strong>{{ currentPage }}</strong> de <strong>{{ totalPages }}</strong> ({{ filteredStudents.length }} alumnos en total)
+    </span>
+    <button class="btn-pag" [disabled]="currentPage === totalPages" (click)="nextPage()">
+      Siguiente
+    </button>
+  </div>
+
+  <!-- MODAL: Para el cambio de estatus -->
+  <div class="modal-overlay" *ngIf="showStatusModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Actualizar estatus de alumno</h3>
+        <button class="close-x" (click)="closeStatusModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <p><strong>Alumno:</strong> {{ selectedStudent?.nombre }} (ID: {{ selectedStudent?.id_alumno }})</p>
+        
+        <div class="form-group">
+          <label for="newStatus">Seleccionar un nuevo estatus</label>
+          <select id="newStatus" [(ngModel)]="newStatus">
+            <option *ngFor="let status of statusOptions" [value]="status">
+              {{ formatStatus(status) | titlecase }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="changeReason">Motivo del cambio</label>
+          <textarea 
+            id="changeReason" 
+            [(ngModel)]="changeReason" 
+            placeholder="Escribe la razon de este cambio de estatus"
+            rows="3">
+          </textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-modal btn-cancel" (click)="closeStatusModal()">Cancelar</button>
+        <button 
+          class="btn-modal btn-save" 
+          [disabled]="changeReason.trim() === '' || selectedStudent?.estatus === newStatus" 
+          (click)="saveStatusChange()">
+          Guardar Cambios
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: HISTORIAL DE CAMBIOS -->
+  <div class="modal-overlay" *ngIf="showHistoryModal">
+    <div class="modal-card modal-large">
+      <div class="modal-header">
+        <h3>Historial de Cambios — {{ selectedStudent?.nombre }}</h3>
+        <button class="close-x" (click)="closeHistoryModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="history-table-container">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Estatus Anterior</th>
+                <th>Nuevo Estatus</th>
+                <th>Motivo del Cambio</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let record of selectedStudentHistory">
+                <td>{{ record.fecha_cambio }}</td>
+                <td>
+                  <span class="badge-inline badge-{{ record.estatus_anterior.toLowerCase() }}">
+                    {{ formatStatus(record.estatus_anterior) | titlecase }}
+                  </span>
+                </td>
+                <td>
+                  <span class="badge-inline badge-{{ record.estatus_nuevo.toLowerCase() }}">
+                    {{ formatStatus(record.estatus_nuevo) | titlecase }}
+                  </span>
+                </td>
+                <td class="reason-text">{{ record.motivo }}</td>
+              </tr>
+              <tr *ngIf="selectedStudentHistory.length === 0">
+                <td colspan="4" class="no-data">Este alumno no cuenta con historial de cambios registrado.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-modal btn-cancel" (click)="closeHistoryModal()">Cerrar Ventana</button>
+      </div>
+    </div>
+  </div>
+
+</div>

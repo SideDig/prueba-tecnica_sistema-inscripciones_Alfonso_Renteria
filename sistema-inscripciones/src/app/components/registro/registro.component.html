@@ -1,0 +1,76 @@
+<div class="registro-card">
+  <h2>Agregar alumno nuevo</h2>
+  
+  <div *ngIf="successMessage" class="alert alert-success">
+    {{ successMessage }}
+  </div>
+
+  <form [formGroup]="studentForm" (ngSubmit)="onSubmit()">
+    
+    <!-- Nombre -->
+    <div class="form-group">
+      <label for="nombre">Nombre completo del alumno</label>
+      <input 
+        id="nombre" 
+        type="text" 
+        formControlName="nombre" 
+        placeholder="Ej. Juan Pérez"
+        [class.invalid]="studentForm.get('nombre')?.invalid && studentForm.get('nombre')?.touched">
+      <div *ngIf="studentForm.get('nombre')?.invalid && studentForm.get('nombre')?.touched" class="error-msg">
+        El nombre es obligatorio y debe tener al menos 3 caracteres.
+      </div>
+    </div>
+
+    <!-- Empresa -->
+    <div class="form-group">
+      <label for="id_empresa">Empresa</label>
+      <select 
+        id="id_empresa" 
+        formControlName="id_empresa"
+        [class.invalid]="studentForm.get('id_empresa')?.invalid && studentForm.get('id_empresa')?.touched">
+        <option value="" disabled selected>Selecciona la empresa</option>
+        <option *ngFor="let comp of companies" [value]="comp.id_empresa">
+          {{ comp.nombre_empresa }}
+        </option>
+      </select>
+      <div *ngIf="studentForm.get('id_empresa')?.invalid && studentForm.get('id_empresa')?.touched" class="error-msg">
+        Debes seleccionar una empresa.
+      </div>
+    </div>
+
+    <!-- Programa -->
+    <div class="form-group">
+      <label for="id_programa">Programa</label>
+      <select 
+        id="id_programa" 
+        formControlName="id_programa"
+        [class.invalid]="studentForm.get('id_programa')?.invalid && studentForm.get('id_programa')?.touched">
+        <option value="" disabled selected>Selecciona el programa</option>
+        <option *ngFor="let prog of programs" [value]="prog.id_programa">
+          {{ prog.nombre_programa }} ({{ prog.nivel }})
+        </option>
+      </select>
+      <div *ngIf="studentForm.get('id_programa')?.invalid && studentForm.get('id_programa')?.touched" class="error-msg">
+        Debes seleccionar un programa academico.
+      </div>
+    </div>
+
+    <!-- Fecha -->
+    <div class="form-group">
+      <label for="fecha_inscripcion">Fecha de inscripcion</label>
+      <input 
+        id="fecha_inscripcion" 
+        type="date" 
+        formControlName="fecha_inscripcion"
+        [class.invalid]="studentForm.get('fecha_inscripcion')?.invalid && studentForm.get('fecha_inscripcion')?.touched">
+      <div *ngIf="studentForm.get('fecha_inscripcion')?.invalid && studentForm.get('fecha_inscripcion')?.touched" class="error-msg">
+        La fecha de inscripción es obligatoria.
+      </div>
+    </div>
+
+    <button type="submit" class="btn-submit" [disabled]="studentForm.invalid && studentForm.touched">
+      Registrar alumno
+    </button>
+
+  </form>
+</div>
